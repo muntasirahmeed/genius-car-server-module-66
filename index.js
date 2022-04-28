@@ -20,6 +20,7 @@ async function run() {
   try {
     await client.connect();
     const serviceCollection = client.db("geniusUser").collection("services");
+    const orderCollection = client.db("geniusUser").collection("order");
 
     //get Data:
     app.get("/services", async (req, res) => {
@@ -45,12 +46,29 @@ async function run() {
     });
 
     //delete data from both side:
-    app.delete('/services/:id', async (req, res) => {
+    app.delete("/services/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id: ObjectId(id)}
-      const result = await serviceCollection.deleteOne(query)
-      res.send(result)
-    })
+      const query = { _id: ObjectId(id) };
+      const result = await serviceCollection.deleteOne(query);
+      res.send(result);
+    });
+    /*  ------------------------------------------------------
+                    order collection api here 
+     ------------------------------------------------------ */
+    //get
+    app.get("/order", async (req, res) => {
+      const query = {};
+      const cursor = orderCollection.find(query);
+      const order = await cursor.toArray();
+      res.send(order);
+    });
+
+    //post
+    app.post("/order", async (req, res) => {
+      const data = req.body;
+      const order = await orderCollection.insertOne(data);
+      res.send(order);
+    });
   } finally {
     //   await client.close();
   }
